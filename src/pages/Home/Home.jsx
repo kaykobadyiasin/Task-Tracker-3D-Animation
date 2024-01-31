@@ -9,11 +9,12 @@ import { Icon } from '@iconify/react';
 import { apiBaseUrl } from '../../apiservice/api';
 
 const Home = () => {
-    const { register, handleSubmit, control, reset } = useForm();
+    const { register, handleSubmit, control, reset, defaultValue } = useForm();
     const [tasks, setTasks] = useState([]);
+    const [editId, setEditId] = useState();
+    const [existingTask, setExistingTask] = useState();
     const { user } = useContext(AuthContext);
 
-    console.log(apiBaseUrl)
 
     useEffect(() => {
         // Fetch tasks on component mount
@@ -32,47 +33,58 @@ const Home = () => {
 
     const onSubmit = async (data) => {
         try {
-            const response = await fetch(`https://server-seven-flax.vercel.app/api/tasks`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ ...data, status: data.status }),
-            });
+            if (existingTask) {
+                // Update existing task logic
+                const id = existingTask._id;
+                const response = await fetch(`https://server-seven-flax.vercel.app/api/tasks/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ ...data, status: data?.status }),
+                });
 
-            if (response.ok) {
-                fetchTasks(); // Fetch updated tasks
-                reset(); // Reset form after submission
+                if (response.ok) {
+                    fetchTasks(); // Fetch updated tasks
+                    reset(); // Reset form after submission
+                    setExistingTask(null); // Reset existingTask state
+                } else {
+                    const errorData = await response.json();
+                    console.error('Failed to update task:', errorData);
+                }
             } else {
-                const errorData = await response.json();
-                console.error('Failed to add task:', errorData);
+                // Add new task logic
+                const response = await fetch(`https://server-seven-flax.vercel.app/api/tasks`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ ...data, status: data.status }),
+                });
+
+                if (response.ok) {
+                    fetchTasks(); // Fetch updated tasks
+                    reset(); // Reset form after submission
+                } else {
+                    const errorData = await response.json();
+                    console.error('Failed to add task:', errorData);
+                }
             }
         } catch (error) {
-            console.error('Error adding task:', error);
+            console.error('Error handling task:', error);
         }
     };
 
-    const onUdate = async (id, data) => {
-        try {
-            const response = await fetch(`https://server-seven-flax.vercel.app/api/tasks/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ ...data, status: data.status }),
-            });
 
-            if (response.ok) {
-                fetchTasks(); // Fetch updated tasks
-                reset(); // Reset form after submission
-            } else {
-                const errorData = await response.json();
-                console.error('Failed to add task:', errorData);
-            }
-        } catch (error) {
-            console.error('Error adding task:', error);
-        }
+    const onUdate = async (data) => {
+        setExistingTask(data)
     };
+
+
+    console.log(editId)
+
+    const singleEditTask = tasks.find(task => task?._id == editId)
+    console.log(singleEditTask)
 
 
     const handleDelete = async (id) => {
@@ -115,50 +127,54 @@ const Home = () => {
                 <SignIn />
                 {/* task add form  */}
                 {user &&
-                    <form onSubmit={handleSubmit(onSubmit)} className="xl:mx-0 mx-5">
-                        <div className="border p-5 rounded-lg bg-indigo-950">
-                            <h3 className="text-xl pt-2 pb-5 text-white font-semibold text-center ">Task Add</h3>
-                            <div className="flex gap-5 mb-5">
-                                <input
-                                    type="text"
-                                    id="title"
-                                    name="title"
-                                    placeholder="Title"
+                    <div>
+                        <form onSubmit={handleSubmit(onSubmit)} className="xl:mx-0 mx-5">
+                            <div className="border p-5 rounded-lg bg-indigo-950">
+                                <h3 className="text-xl pt-2 pb-5 text-white font-semibold text-center ">{existingTask ? 'Task Update' : 'Task Add'}</h3>
+                                <div className="flex gap-5 mb-5">
+                                    <input
+                                        defaultValue={existingTask ? existingTask.title : ''}
+                                        type="text"
+                                        id="title"
+                                        name="title"
+                                        placeholder="Title"
+                                        className="border p-5 rounded-lg w-full"
+                                        {...register('title', { required: true })}
+                                    />
+                                    <Controller
+                                        name="status"
+                                        control={control}
+                                        defaultValue={existingTask ? existingTask.status : ''}
+                                        render={({ field }) => (
+                                            <select
+                                                {...field}
+                                                className="border px-5 rounded-lg w-full"
+                                            >
+                                                <option disabled>Select Status</option>
+                                                <option value="active">Active</option>
+                                                <option value="pending">Pending</option>
+                                                <option value="complete">Complete</option>
+                                            </select>
+                                        )}
+                                    />
+                                </div>
+                                <textarea
+                                    name="description"
+                                    placeholder="Description"
+                                    defaultValue={existingTask ? existingTask.description : ''}
                                     className="border p-5 rounded-lg w-full"
-                                    {...register('title', { required: true })}
-                                />
-                                <Controller
-                                    name="status"
-                                    control={control}
-                                    defaultValue=""
-                                    render={({ field }) => (
-                                        <select
-                                            {...field}
-                                            className="border px-5 rounded-lg w-full"
-                                        >
-                                            <option disabled>Select Status</option>
-                                            <option value="active">Active</option>
-                                            <option value="pending">Pending</option>
-                                            <option value="complete">Complete</option>
-                                        </select>
-                                    )}
-                                />
+                                    {...register('description', { required: true })}
+                                ></textarea>
+                                <div className="flex justify-end">
+                                    <input
+                                        type="submit"
+                                        value={existingTask ? 'Update Task' : 'Add Task'}
+                                        className="text-white border px-5 py-2 rounded-lg mt-3 hover:bg-white hover:text-black transition-all duration-300 cursor-pointer "
+                                    />
+                                </div>
                             </div>
-                            <textarea
-                                name="description"
-                                placeholder="Description"
-                                className="border p-5 rounded-lg w-full"
-                                {...register('description', { required: true })}
-                            ></textarea>
-                            <div className="flex justify-end">
-                                <input
-                                    type="submit"
-                                    value={'Add Task'}
-                                    className="text-white border px-5 py-2 rounded-lg mt-3 hover:bg-white hover:text-black transition-all duration-300 cursor-pointer "
-                                />
-                            </div>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 }
 
                 <TaskTable tasks={tasks} onUdate={onUdate} handleDelete={handleDelete} />

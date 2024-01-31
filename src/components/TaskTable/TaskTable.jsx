@@ -43,7 +43,7 @@ const TaskTable = ({ tasks, onUdate, handleDelete }) => {
                                 <td className='px-6 py-4 capitalize'>{task?.status}</td>
                                 {user && <td className='px-6 text-center md:flex flex-grow-0 lg:flex-grow py-4'>
                                     <a
-                                        onClick={() => onUdate(task._id)}
+                                        onClick={() => onUdate(task)}
                                         type='button'
                                         data-modal-target='editUserModal'
                                         data-modal-show='editUserModal'
