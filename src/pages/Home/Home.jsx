@@ -7,15 +7,16 @@ import { useForm, Controller } from 'react-hook-form';
 import TaskTable from '../../components/TaskTable/TaskTable';
 import { Icon } from '@iconify/react';
 import { apiBaseUrl } from '../../apiservice/api';
+import toast, { Toaster } from 'react-hot-toast';
 
 const Home = () => {
     const { register, handleSubmit, control, reset, defaultValue } = useForm();
     const [tasks, setTasks] = useState([]);
-    const [editId, setEditId] = useState();
     const [existingTask, setExistingTask] = useState();
     const { user } = useContext(AuthContext);
 
 
+    // all task get 
     useEffect(() => {
         // Fetch tasks on component mount
         fetchTasks();
@@ -31,6 +32,7 @@ const Home = () => {
         }
     };
 
+    // new task add and update task 
     const onSubmit = async (data) => {
         try {
             if (existingTask) {
@@ -46,10 +48,21 @@ const Home = () => {
 
                 if (response.ok) {
                     fetchTasks(); // Fetch updated tasks
-                    reset(); // Reset form after submission
                     setExistingTask(null); // Reset existingTask state
+                    const notify = () =>
+                        toast.success('Successfully Updated Task', {
+                            position: 'top-right',
+                        });
+                    notify();
+                    reset(); // Reset form after submission
                 } else {
+
                     const errorData = await response.json();
+                    const notify = () =>
+                        toast.error('Failed to update task', {
+                            position: 'top-right',
+                        });
+                    notify();
                     console.error('Failed to update task:', errorData);
                 }
             } else {
@@ -64,6 +77,11 @@ const Home = () => {
 
                 if (response.ok) {
                     fetchTasks(); // Fetch updated tasks
+                    const notify = () =>
+                        toast.success('Successfully Added New Task', {
+                            position: 'top-right',
+                        });
+                    notify();
                     reset(); // Reset form after submission
                 } else {
                     const errorData = await response.json();
@@ -71,22 +89,23 @@ const Home = () => {
                 }
             }
         } catch (error) {
+            const notify = () =>
+                toast.error('Failed to delete task', {
+                    position: 'top-right',
+                });
+            notify();
             console.error('Error handling task:', error);
         }
     };
+
+
 
 
     const onUdate = async (data) => {
         setExistingTask(data)
     };
 
-
-    console.log(editId)
-
-    const singleEditTask = tasks.find(task => task?._id == editId)
-    console.log(singleEditTask)
-
-
+    // delete task 
     const handleDelete = async (id) => {
         try {
             const response = await fetch(`https://server-seven-flax.vercel.app/api/tasks/${id}`, {
@@ -95,10 +114,25 @@ const Home = () => {
 
             if (response.ok) {
                 fetchTasks(); // Fetch updated tasks
+                const notify = () =>
+                    toast.success('Successfully Deleted Task', {
+                        position: 'top-right',
+                    });
+                notify();
             } else {
+                const notify = () =>
+                    toast.error('Failed to delete task', {
+                        position: 'top-right',
+                    });
+                notify();
                 console.error('Failed to delete task');
             }
         } catch (error) {
+            const notify = () =>
+                toast.error('Error deleting task', {
+                    position: 'top-right',
+                });
+            notify();
             console.error('Error deleting task:', error);
         }
     };
@@ -107,8 +141,10 @@ const Home = () => {
         window.scrollTo({ top: 500, behavior: 'smooth' });
     };
 
+
     return (
         <div className="">
+            <Toaster />
             <div className="min-h-screen h-[100vh] w-full bg-indigo-950 relative">
                 <div className='absolute left-0 right-0 top-0 z-10 mt-20'>
 
@@ -123,7 +159,7 @@ const Home = () => {
                     <Cube />
                 </Canvas>
             </div>
-            <div className="max-w-7xl mx-auto py-20">
+            <div className="container mx-auto py-20">
                 <SignIn />
                 {/* task add form  */}
                 {user &&

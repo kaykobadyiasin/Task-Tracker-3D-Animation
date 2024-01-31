@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { Icon } from '@iconify/react';
 import { AuthContext } from '../../Provider/AuthProviders';
+import toast from 'react-hot-toast';
 
 const SignIn = () => {
     const { user, loading, setLoading, signIn, logOut } = useContext(AuthContext);
@@ -11,10 +12,20 @@ const SignIn = () => {
             .then(result => {
                 const user = result.user
                 console.log(user)
+                const notify = () =>
+                    toast.success('Successfully Sign In with Accout Google', {
+                        position: 'top-right',
+                    });
+                notify();
                 setLoading(false)
             })
             .catch(error => {
                 console.log('error', error.message)
+                const notify = () =>
+                    toast.error(error.message, {
+                        position: 'bottom-right',
+                    });
+                notify();
             })
     }
 
@@ -24,9 +35,19 @@ const SignIn = () => {
             .then(result => {
                 console.log(result)
                 setLoading(false)
+                const notify = () =>
+                    toast.success('Successfully Sign Out with Accout Google', {
+                        position: 'top-right',
+                    });
+                notify();
             })
             .catch(error => {
                 console.log('error', error)
+                const notify = () =>
+                    toast.success(error, {
+                        position: 'top-right',
+                    });
+                notify();
             })
 
     }

@@ -1,9 +1,31 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../../Provider/AuthProviders';
 
 const TaskTable = ({ tasks, onUdate, handleDelete }) => {
 
     const { user } = useContext(AuthContext);
+
+    const [formattedDates, setFormattedDates] = useState([]);
+
+    useEffect(() => {
+      const fetchFormattedDates = () => {
+        const formattedDatesArray = tasks.map((task) => {
+          const date = new Date(task.createdAt);
+          return date.toLocaleString('en-BD', {
+            timeZone: 'Asia/Dhaka',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            second: 'numeric',
+          });
+        });
+        setFormattedDates(formattedDatesArray);
+      };
+  
+      fetchFormattedDates();
+    }, [tasks]);
 
     return (
         <div className='mt-5 border overflow-x-auto rounded-lg p-5 bg-indigo-950 text-white xl:mx-0 mx-5'>
@@ -24,6 +46,9 @@ const TaskTable = ({ tasks, onUdate, handleDelete }) => {
                             <th scope='col' className='px-6 py-3'>
                                 Status
                             </th>
+                            <th scope='col' className='px-6 py-3'>
+                                Date
+                            </th>
                             {user && <th scope='col' className='px-6 py-3'>
                                 Action
                             </th>}
@@ -41,6 +66,7 @@ const TaskTable = ({ tasks, onUdate, handleDelete }) => {
                                 <td className='px-6 py-4 text-justify'>{task?.title}</td>
                                 <td className='px-6 py-4 text-justify'>{task?.description}</td>
                                 <td className='px-6 py-4 capitalize'>{task?.status}</td>
+                                <td className='px-6 py-4 capitalize'>{formattedDates[index]}</td>
                                 {user && <td className='px-6 text-center md:flex flex-grow-0 lg:flex-grow py-4'>
                                     <a
                                         onClick={() => onUdate(task)}
