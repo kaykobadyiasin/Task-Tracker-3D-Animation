@@ -48,22 +48,7 @@ const Home = () => {
     };
 
 
-    const handleDelete = async (id) => {
-        try {
-            const response = await fetch(`http://localhost:3000/api/tasks/${id}`, {
-                method: 'DELETE',
-            });
-
-            if (response.ok) {
-                fetchTasks(); // Fetch updated tasks
-            } else {
-                console.error('Failed to delete task');
-            }
-        } catch (error) {
-            console.error('Error deleting task:', error);
-        }
-    };
-
+    
     return (
         <div className="">
             <div className="min-h-screen h-[100vh] w-full bg-indigo-950">
