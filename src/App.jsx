@@ -3,7 +3,7 @@ function App() {
 
   return (
     <>
-      <div className="">Real-time Task Tracker with 3D Animation</div>
+      <div>Real-time Task Tracker with 3D Animation</div>
     </>
   )
 }

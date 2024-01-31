@@ -1,5 +1,5 @@
-import { OrbitControls } from '@react-three/drei';
-import { useFrame } from '@react-three/fiber';
+import { OrbitControls, Stars } from '@react-three/drei';
+import { Canvas, useFrame } from '@react-three/fiber';
 import React, { useRef } from 'react';
 
 
@@ -8,8 +8,9 @@ const Cube = () => {
     const cubeRef = useRef();
 
     useFrame((state, delta) => {
-        cubeRef.current.rotation.y += 0.01;
-        cubeRef.current.rotation.x += 0.01;
+        cubeRef.current.rotation.y += delta;
+        cubeRef.current.rotation.x += delta;
+        
     })
 
     return (
@@ -17,11 +18,13 @@ const Cube = () => {
             <OrbitControls />
             <spotLight />
             <ambientLight />
+            <Stars/>
+            
             <mesh ref={cubeRef}>
                 <boxGeometry  />
                 <meshStandardMaterial />
             </mesh>
-        </>
+            </>
     );
 };
 
