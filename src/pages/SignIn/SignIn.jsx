@@ -32,20 +32,10 @@ const SignIn = () => {
     }
 
 
-    return (
-        <div className='flex justify-end gap-5'>
-            {user ?
-                <button onClick={handleSignOut} className='border rounded-lg px-2 py-2 mb-5 flex gap-2 items-center'>
-                    <Icon icon="devicon:google" className='text-3xl' />
-                    <span className='font-semibold'>Sign Out {loading && <Icon icon="svg-spinners:pulse-3" />}</span>
-                </button>
-                :
 
-                <button onClick={handleGoogleSignIn} className='border rounded-lg px-2 py-2 mb-5 flex gap-2 items-center'>
-                    <Icon icon="devicon:google" className='text-3xl' />
-                    <span className='font-semibold'>Sign with google</span>
-                </button>
-            }
+    return (
+        <div className='flex justify-end gap-5 xl:mx-0 mx-5'>
+
 
             {user ?
                 <div className='w-12 h-12 rounded-full border'>
@@ -53,6 +43,19 @@ const SignIn = () => {
                 </div>
                 :
                 <Icon icon="mdi:user-circle" className='w-12 h-12 rounded-full border' />
+            }
+
+            {user ?
+                <button onClick={handleSignOut} className='border rounded-lg px-2 py-2 mb-5 flex gap-2 items-center'>
+                    <Icon icon="devicon:google" className='text-3xl' />
+                    <span className='font-semibold'>Sign Out {loading && <Icon icon="svg-spinners:pulse-3" />}</span>
+                </button>
+                :
+
+                <button onClick={handleGoogleSignIn} className='border rounded-lg px-2 py-2 flex gap-2 items-center'>
+                    <Icon icon="devicon:google" className='text-3xl' />
+                    <span className='font-semibold'>Sign with google</span>
+                </button>
             }
         </div>
     );
