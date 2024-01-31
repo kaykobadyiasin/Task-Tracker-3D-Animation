@@ -6,11 +6,14 @@ import { AuthContext } from '../../Provider/AuthProviders';
 import { useForm, Controller } from 'react-hook-form';
 import TaskTable from '../../components/TaskTable/TaskTable';
 import { Icon } from '@iconify/react';
+import { apiBaseUrl } from '../../apiservice/api';
 
 const Home = () => {
     const { register, handleSubmit, control, reset } = useForm();
     const [tasks, setTasks] = useState([]);
     const { user } = useContext(AuthContext);
+
+    console.log(apiBaseUrl)
 
     useEffect(() => {
         // Fetch tasks on component mount
@@ -19,7 +22,7 @@ const Home = () => {
 
     const fetchTasks = async () => {
         try {
-            const response = await fetch('http://localhost:3000/api/tasks/');
+            const response = await fetch(`https://server-seven-flax.vercel.app/api/tasks`);
             const data = await response.json();
             setTasks(data);
         } catch (error) {
@@ -29,8 +32,30 @@ const Home = () => {
 
     const onSubmit = async (data) => {
         try {
-            const response = await fetch('http://localhost:3000/api/tasks/', {
+            const response = await fetch(`https://server-seven-flax.vercel.app/api/tasks`, {
                 method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ ...data, status: data.status }),
+            });
+
+            if (response.ok) {
+                fetchTasks(); // Fetch updated tasks
+                reset(); // Reset form after submission
+            } else {
+                const errorData = await response.json();
+                console.error('Failed to add task:', errorData);
+            }
+        } catch (error) {
+            console.error('Error adding task:', error);
+        }
+    };
+
+    const onUdate = async (id, data) => {
+        try {
+            const response = await fetch(`https://server-seven-flax.vercel.app/api/tasks/${id}`, {
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -52,7 +77,7 @@ const Home = () => {
 
     const handleDelete = async (id) => {
         try {
-            const response = await fetch(`http://localhost:3000/api/tasks/${id}`, {
+            const response = await fetch(`https://server-seven-flax.vercel.app/api/tasks/${id}`, {
                 method: 'DELETE',
             });
 
@@ -74,9 +99,9 @@ const Home = () => {
         <div className="">
             <div className="min-h-screen h-[100vh] w-full bg-indigo-950 relative">
                 <div className='absolute left-0 right-0 top-0 z-10 mt-20'>
-                    
+
                     <div className='flex justify-center my-5'>
-                        <Icon  onClick={() => scrollToTask()} icon="svg-spinners:wind-toy" className='text-8xl cursor-pointer text-white' />
+                        <Icon onClick={() => scrollToTask()} icon="svg-spinners:wind-toy" className='text-8xl cursor-pointer text-white' />
                     </div>
                     <div className='flex justify-center'>
                         <button onClick={() => scrollToTask()} className=' py-2 px-5 bg-white rounded-lg cursor-pointer'>View Task List</button>
@@ -136,7 +161,7 @@ const Home = () => {
                     </form>
                 }
 
-                <TaskTable tasks={tasks} handleDelete={handleDelete} />
+                <TaskTable tasks={tasks} onUdate={onUdate} handleDelete={handleDelete} />
 
             </div>
 

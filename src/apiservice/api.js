@@ -1,0 +1,1 @@
+export const apiBaseUrl = 'https://server-seven-flax.vercel.app/api'

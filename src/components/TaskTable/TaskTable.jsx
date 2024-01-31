@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { AuthContext } from '../../Provider/AuthProviders';
 
-const TaskTable = ({ tasks, handleDelete }) => {
+const TaskTable = ({ tasks, onUdate, handleDelete }) => {
 
     const { user } = useContext(AuthContext);
 
@@ -43,6 +43,7 @@ const TaskTable = ({ tasks, handleDelete }) => {
                                 <td className='px-6 py-4 capitalize'>{task?.status}</td>
                                 {user && <td className='px-6 text-center md:flex flex-grow-0 lg:flex-grow py-4'>
                                     <a
+                                        onClick={() => onUdate(task._id)}
                                         type='button'
                                         data-modal-target='editUserModal'
                                         data-modal-show='editUserModal'
